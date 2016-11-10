@@ -1,0 +1,24 @@
+universe=vanilla
+
+job_ad_information_attrs = MachineSlotName
++MachineSlotName = "$$(Name)"
+
+executable=$ORCA_SCRIPT
+getenv=True
+
+transfer_executable=true
+
+Requirements = (FileSystemDomain == "$FILE_SYSTEM_DOMAIN") && (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+notification=Error
+
+
+args=$(runid) $(workerid) $(var1)
+
+output=logs/$(visit)/worker-$(var2).out
+error=logs/$(visit)/worker-$(var2).err
+remote_initialdir=$ORCA_DEFAULTROOT
+
+queue 1

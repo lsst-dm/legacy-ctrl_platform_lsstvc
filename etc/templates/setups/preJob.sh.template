@@ -1,0 +1,70 @@
+#!/bin/sh
+
+export HOME=$USERHOME
+export SHELL=/bin/sh
+export USER=$USERNAME
+source /etc/bashrc
+
+datadir=$DATADIR
+
+cd $ORCA_DEFAULTROOT
+
+mkdir -p $ORCA_RUNID
+cd $ORCA_RUNID
+
+mkdir -p logs
+mkdir -p output
+#
+#mkdir -p output/processCcd_config
+#mkdir -p output/processCcd_metadata
+#mkdir -p output/sci-results
+#
+##ln -s $DATADIR/registry.sqlite3 output/registry.sqlite3
+
+export EUPS_PATH=$EUPS_PATH
+echo `hostname`
+cd $EUPS_PATH
+. $EUPS_PATH/eups/default/bin/setups.sh
+#env
+setup lsst
+
+
+cd $ORCA_DEFAULTROOT
+cd $ORCA_RUNID
+echo "Begin setups:"
+date
+$CTRL_EXECUTE_SETUP_PACKAGES
+echo "Finished setups:"
+date
+
+echo "Export environments:"
+date
+python -c """
+import re,os
+with open('env.sh', 'w') as envFile:
+     for k, v in os.environ.iteritems():
+         if re.search(r'_DIR|SETUP_|LSST|EUPS|PATH', k): 
+            print >>envFile, 'export %s=%s' % (k, repr(v))
+"""
+echo "Finished exporting."
+date
+
+#env >>env.sh
+
+#eups_setup -t v5_2 datarel -t beta > env.sh
+#. ./env.sh
+#
+#eups_setup -t v5_2 obs_sdss -t beta > tmp.sh
+#
+#. ./tmp.sh; cat tmp.sh >> env.sh
+#
+#eups_setup astrometry_net_data   sdss-2012-05-01-0 > tmp.sh
+#. ./tmp.sh; cat tmp.sh >> env.sh
+#
+#
+eups list --setup > eups.list 
+
+# Executing any precall() method one time without processing any data
+# will save provenance information such as configs and schemas
+id_option=""
+$COMMAND

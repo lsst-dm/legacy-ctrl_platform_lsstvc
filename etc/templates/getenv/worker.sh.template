@@ -1,0 +1,82 @@
+#!/bin/sh
+
+echo "env is:"
+env
+echo "done with env"
+
+export HERE=$PWD
+
+runid=$1 
+workerid=$2 
+echo "runid = "$runid
+shift 2
+/bin/hostname -f 
+shost=`/bin/hostname -s`
+
+count=0
+check=0
+declare -a names=();
+one_arg=""
+while [ $check == 0 ]; do
+    if [ $1 ]
+        then 
+        if [ $1 == 'X' ]
+            then
+            names[$count]="--id "$one_arg
+            one_arg=""
+            count=`expr $count + 1`
+        else
+            one_arg=$one_arg" "$1
+        fi
+        shift 1
+    else
+        names[$count]="--id "$one_arg
+        check=1
+    fi
+done
+temp=""
+for val in "${names[@]}"
+do
+    temp=$temp" "$val
+done
+id_option=$temp
+
+rundir=${HERE}/$ORCA_RUNID
+cd ${rundir}
+
+cslot=${_CONDOR_SLOT}
+
+mkdir -p logs/$shost/$cslot
+
+temp=""
+
+cd ${rundir}
+
+
+echo "==== Prior to S2012Pipe "
+
+
+time1=0
+time2=0
+time3=0
+
+modstring=${workerid}
+
+time1=$(date -d "`date`" "+%s")
+
+
+echo "$COMMAND >> ${rundir}/logs/$shost/$cslot/S2012Pipe-${modstring}.log  2>&1"
+$COMMAND >> ${rundir}/logs/$shost/$cslot/S2012Pipe-${modstring}.log  2>&1
+
+
+time2=$(date -d "`date`" "+%s")
+
+let time3=$time2-$time1
+
+echo "==== After S2012Pipe "
+
+echo STAMP2 $time2
+echo STAMP1 $time1
+
+echo TIMING $time3
+

@@ -1,0 +1,5 @@
+config.platform.localScratch = "/scratch/srp/condor_scratch"
+config.platform.defaultRoot = "/lsst/DC3root"
+config.platform.dataDirectory = "/lsst7/stripe82/dr7/runs"
+config.platform.fileSystemDomain = "ncsa.illinois.edu"
+config.platform.scheduler = "slurm"

@@ -1,0 +1,55 @@
+#!/bin/bash -l
+nodeset=$NODE_SET
+numcpus=24
+
+echo USER_NAME
+echo $USER_NAME
+myuser=$USER_NAME
+echo ${myuser}
+
+myhost=`hostname`
+echo ${myhost}
+
+REMOTE_DIR=$SCRATCH_DIR/$CONFIGURATION_ID/${myhost}
+mkdir -p ${REMOTE_DIR}/config
+mkdir -p ${REMOTE_DIR}/log
+mkdir -p ${REMOTE_DIR}/spool
+mkdir -p ${REMOTE_DIR}/execute
+
+cp $SCRATCH_DIR/configs/$GENERATED_CONFIG ${REMOTE_DIR}/config/$GENERATED_CONFIG
+#cp /scratch/srp/condor_scratch/configs/condor_srp_2016_1109_135257.config ${REMOTE_DIR}/config/condor_srp_2016_1109_135257.config
+#condorConfig="${REMOTE_DIR}/config/condor_srp_2016_1109_135257.config"
+condorConfig="${REMOTE_DIR}/config/$GENERATED_CONFIG"
+
+condorLocal=${REMOTE_DIR}
+
+echo ${condorConfig}
+
+
+export CONDOR_CONFIG=${condorConfig}
+export _condor_LOCAL_DIR=${condorLocal}
+
+# export _condor_SBIN=/software/daues/condor/condor-8.4.8-x86_64_RedHat7-stripped/sbin
+
+export _condor_NUM_CPUS=${numcpus}
+export _condor_SBIN=/software/daues/condor/condor-8.5.7-x86_64_RedHat7-unstripped/sbin
+####################################################################################
+
+export _condor_STARTD_NOCLAIM_SHUTDOWN=900.0
+export _condor_START=" Owner == \"${myuser}\" && ANODE_SET ==  \"${nodeset}\""
+
+export _condor_NODE_SET="\"${myuser}\""
+
+
+myid=`id -u`
+mygp=`id -g`
+export _condor_CONDOR_IDS="${myid}.${mygp}"
+
+echo _condor_CONDOR_IDS
+echo ${_condor_CONDOR_IDS}
+
+###############################################################################
+# Start htcondor, in the foreground
+
+echo "about to run condor_master"
+exec ${_condor_SBIN}/condor_master -f
