@@ -24,7 +24,7 @@ mkdir -p output
 export EUPS_PATH=$EUPS_PATH
 echo `hostname`
 cd $EUPS_PATH
-. $EUPS_PATH/eups/default/bin/setups.sh
+. $EUPS_PATH/eups/current/bin/setups.sh
 #env
 setup lsst
 

@@ -16,7 +16,7 @@ output=logs/worker-post.out
 error=logs/worker-post.err
 log=logs/worker-post.log
 
-Requirements = (FileSystemDomain == "$FILE_SYSTEM_DOMAIN") && (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
+Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
 # queue 20
 #
 
