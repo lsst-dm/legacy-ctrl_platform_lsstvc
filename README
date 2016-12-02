@@ -1,0 +1,90 @@
+This is a brief into in how to use this platform package. Refer to the confluence documentation
+for much greater detail.
+
+This package is used in conjunction with the utilities in ctrl_orca and 
+ctrl_execute using the verification cluster as a target platform.
+
+The current configuration of this package is set to use slurm as a submit 
+mechanism to start HTCondor clients which join the HTCondor submitter.
+
+To allocation nodes from the verification cluster and add them to the 
+HTCondor submitter, execute the allocationNode.py command in ctrl_execute.
+
+BEFORE YOU START:
+
+create the directories:
+/scratch/username/condor_scratch
+/scratch/username/condor_work
+
+(Substitute "username" with your own login id).
+
+ALLOCATING NODES AND RUNNING A JOB:
+
+The following comand reserves four nodes, with 24 condor slots (cores) on
+each node, for 30 minutes:
+
+$ allocateNodes.py -n 4 -s 24 -m 00:30:00 verification
+4 nodes will be allocated on verification with 24 slots per node and maximum time limit of 00:30:00
+Node set name:
+srp_450
+$
+
+Take note of the "Node set name". This is the name of machines you allocated, and you'll use
+this when you submit nodes to HTCondor.    This will be different each time you use allocateNodes.py.
+
+
+To use this with Orca, specify the nodeset name using the "-N" option in runOrca.py.   The following
+command targets jobs to the "srp_450" node set, executing the command "/scratch/srp/myjob.sh" with input
+file "~/medinput.txt" using the EUPS stack located at "/scratch/srp/lsstsw", on the target platform
+"verfication"
+
+$ runOrca.py -N srp_450 -c /scratch/srp/myjob.sh -i ~/medinput.txt -e /scratch/srp/lsstsw -p verification
+setup_using = getenv
+runid for this run is  srp_2016_1202_145231
+orca.py /scratch/srp/condor_scratch/configs/srp_2016_1202_145231.config srp_2016_1202_145231
+Production launched.
+Waiting for shutdown request.
+sending last Logger Event
+logger handled... and... done!
+$ 
+
+in this case, files were created in
+/scratch/srp/condor_scratch/srp_2016_1202_145231
+/scratch/srp/condor_work/srp_2016_1202_145231
+
+Files in condor_scratch/srp_2016_1202_145231 contain the working directory and files for a DAGman
+submission by HTCondor.
+
+Files in condor_work/srp_2016_1202_14523/logs
+
+contain log files from stdout of the jobs that ran, identified by machine name, and the HTCondor slot 
+the job ran on.  It also contains a top level output directory, but it's  up to the job to decide
+how that's used.
+
+RELINQUISHING NODES
+
+To remove the nodes from use, clear out all currently running HTCondor jobs:
+
+$ condor_rm username
+All jobs of user "username" have been marked for removal
+$
+
+Then run "squeue" to see which nodes you've allocated:
+
+$ squeue
+JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+32507     debug  srp_450      srp  R      26:11      4 lsst-verify-worker[01-04]
+$
+
+Then run "scancel" on that JOBID:
+
+$ scancel 32507
+
+This will remove your allocated nodes, and return them to the general slurm pool.
+
+WARNING
+
+Keep in mind that the current HTCondor configuration is set to remove all worker nodes after 15
+minutes of inactivity.  This means if there are no jobs running after 15 minutes, the worker nodes
+will be deallocated and no longer be part of the HTCondor pool. If this happens dealloc your allocated
+slurm nodes, and execute allocateNodes.py again.
