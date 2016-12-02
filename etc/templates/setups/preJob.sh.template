@@ -1,32 +1,31 @@
-#!/bin/sh
+#!/bin/bash
 
-export HOME=$USERHOME
+# This job sets up all the directory infrastructure that needs to be in place before the real jobs run
+
+#export HOME=$USERHOME
+export HOME=$ORCA_DEFAULTROOT/$ORCA_RUNID
 export SHELL=/bin/sh
 export USER=$USERNAME
 source /etc/bashrc
 
 datadir=$DATADIR
 
-cd $ORCA_DEFAULTROOT
 
-mkdir -p $ORCA_RUNID
-cd $ORCA_RUNID
+mkdir -p $ORCA_DEFAULTROOT/$ORCA_RUNID/.eups
 
+cd $ORCA_DEFAULTROOT/$ORCA_RUNID
 mkdir -p logs
 mkdir -p output
-#
-#mkdir -p output/processCcd_config
-#mkdir -p output/processCcd_metadata
-#mkdir -p output/sci-results
-#
-##ln -s $DATADIR/registry.sqlite3 output/registry.sqlite3
 
-export EUPS_PATH=$EUPS_PATH
+# this prevents multiple invocations of EUPS from blocking each other
+echo "hooks.config.site.lockDirectoryBase = None" > $HOME/.eups/startup.py
+
 echo `hostname`
 cd $EUPS_PATH
-. $EUPS_PATH/eups/current/bin/setups.sh
+#. $EUPS_PATH/eups/current/bin/setups.sh
+. $EUPS_PATH/bin/setup.sh
 #env
-setup lsst
+#setup lsst
 
 
 cd $ORCA_DEFAULTROOT
@@ -64,7 +63,9 @@ date
 #
 eups list --setup > eups.list 
 
+# 11/14/16: This is obsolete
 # Executing any precall() method one time without processing any data
 # will save provenance information such as configs and schemas
-id_option=""
-$COMMAND
+#
+#id_option=""
+#$COMMAND

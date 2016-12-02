@@ -10,7 +10,7 @@ echo ${myuser}
 myhost=`hostname`
 echo ${myhost}
 
-REMOTE_DIR=$SCRATCH_DIR/$CONFIGURATION_ID/${myhost}
+REMOTE_DIR=$LOCAL_SCRATCH/$CONFIGURATION_ID/${myhost}
 mkdir -p ${REMOTE_DIR}/config
 mkdir -p ${REMOTE_DIR}/log
 mkdir -p ${REMOTE_DIR}/spool
@@ -36,9 +36,9 @@ export _condor_SBIN=/software/daues/condor/condor-8.5.7-x86_64_RedHat7-unstrippe
 ####################################################################################
 
 export _condor_STARTD_NOCLAIM_SHUTDOWN=900.0
-export _condor_START=" Owner == \"${myuser}\" && ANODE_SET ==  \"${nodeset}\""
+export _condor_START=" Owner == \"${myuser}\" && NODE_SET ==  \"${nodeset}\""
 
-export _condor_NODE_SET="\"${myuser}\""
+export _condor_NODE_SET="\"${nodeset}\""
 
 
 myid=`id -u`

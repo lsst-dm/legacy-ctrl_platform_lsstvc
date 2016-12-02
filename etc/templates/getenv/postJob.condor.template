@@ -3,28 +3,20 @@ universe=vanilla
 job_ad_information_attrs = MachineSlotName
 +MachineSlotName = "$$(Name)"
 
-# executable=/bin/hostname
-# arguments=-f
 executable=$ORCA_SCRIPT
 getenv=True
 
 transfer_executable=true
-#
- 
  
 output=logs/worker-post.out
 error=logs/worker-post.err
 log=logs/worker-post.log
 
-Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
-# queue 20
-#
+Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0) && (NODE_SET == "$NODE_SET")
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 
 remote_initialdir=$ORCA_DEFAULTROOT
-# remote_initialdir=/scratch/00342/ux453102/datarel-runs/pt12prod_im3001/work
-# Requirements = (FileSystemDomain != "dummy") && (Arch != "dummy") && (OpSys != "dummy") && (Disk != -1) && (Memory != -1)
 queue
 

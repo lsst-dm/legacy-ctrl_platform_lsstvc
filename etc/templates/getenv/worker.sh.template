@@ -10,6 +10,11 @@ runid=$1
 workerid=$2 
 echo "runid = "$runid
 shift 2
+export HOME=$ORCA_DEFAULTROOT
+export SHELL=/bin/bash
+export USER=$USERNAME
+source /etc/bashrc
+
 /bin/hostname -f 
 shost=`/bin/hostname -s`
 

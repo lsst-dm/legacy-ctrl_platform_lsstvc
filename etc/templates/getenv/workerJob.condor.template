@@ -8,7 +8,7 @@ getenv=True
 
 transfer_executable=true
 
-Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
+Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0) && (NODE_SET == "$NODE_SET")
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
