@@ -12,8 +12,9 @@ transfer_executable=true
 output=logs/worker-pre.out
 error=logs/worker-pre.err
 log=logs/worker-pre.log
++JOB_NODE_SET="$NODE_SET"
 
-Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0) && (NODE_SET == "$NODE_SET")
+Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0) && (Target.ALLOCATED_NODE_SET == "$NODE_SET")
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT

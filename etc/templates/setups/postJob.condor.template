@@ -2,7 +2,7 @@ universe=vanilla
 
 job_ad_information_attrs = MachineSlotName
 +MachineSlotName = "$$(Name)"
-# +NODE_SET = "$NODE_SET"
++JOB_NODE_SET = "$NODE_SET"
 
 # executable=/bin/hostname
 # arguments=-f
@@ -16,7 +16,7 @@ output=logs/worker-post.out
 error=logs/worker-post.err
 log=logs/worker-post.log
 
-Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0) && (NODE_SET == "$NODE_SET")
+Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0) && (Target.ALLOCATED_NODE_SET == "$NODE_SET")
 # queue 20
 #
 
