@@ -2,12 +2,12 @@ This is a brief into in how to use this platform package. Refer to the confluenc
 for much greater detail.
 
 This package is used in conjunction with the utilities in ctrl_orca and 
-ctrl_execute using the verification cluster as a target platform.
+ctrl_execute using the lsstvc cluster as a target platform.
 
 The current configuration of this package is set to use slurm as a submit 
 mechanism to start HTCondor clients which join the HTCondor submitter.
 
-To allocation nodes from the verification cluster and add them to the 
+To allocation nodes from the lsstvc cluster and add them to the 
 HTCondor submitter, execute the allocationNode.py command in ctrl_execute.
 
 BEFORE YOU START:
@@ -23,8 +23,8 @@ ALLOCATING NODES AND RUNNING A JOB:
 The following comand reserves four nodes, with 24 condor slots (cores) on
 each node, for 30 minutes:
 
-$ allocateNodes.py -n 4 -s 24 -m 00:30:00 verification
-4 nodes will be allocated on verification with 24 slots per node and maximum time limit of 00:30:00
+$ allocateNodes.py -n 4 -s 24 -m 00:30:00 lsstvc
+4 nodes will be allocated on lsstvc with 24 slots per node and maximum time limit of 00:30:00
 Node set name:
 srp_450
 $
@@ -38,7 +38,7 @@ command targets jobs to the "srp_450" node set, executing the command "/scratch/
 file "~/medinput.txt" using the EUPS stack located at "/scratch/srp/lsstsw", on the target platform
 "verfication"
 
-$ runOrca.py -N srp_450 -c /scratch/srp/myjob.sh -i ~/medinput.txt -e /scratch/srp/lsstsw -p verification
+$ runOrca.py -N srp_450 -c /scratch/srp/myjob.sh -i ~/medinput.txt -e /scratch/srp/lsstsw -p lsstvc
 setup_using = getenv
 runid for this run is  srp_2016_1202_145231
 orca.py /scratch/srp/condor_scratch/configs/srp_2016_1202_145231.config srp_2016_1202_145231
