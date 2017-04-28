@@ -6,7 +6,7 @@
     <site handle="local" arch="x86_64" os="LINUX">
         <!-- This is where intermediate data will be stored -->
         <directory type="shared-scratch" path="$USERHOME/scratch/">
-            <file-server operation="all" url="file://USERHOME/scratch/"/>
+            <file-server operation="all" url="file://$USERHOME/scratch/"/>
         </directory>
         <!-- This is where output data will be stored -->
         <directory type="shared-storage" path="$USERHOME/storage/">
