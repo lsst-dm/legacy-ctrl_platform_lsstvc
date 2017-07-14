@@ -27,7 +27,7 @@ ALLOW_READ = 141.142.*
 NUM_CPUS=$SLOTS
 ####################################################################################
 
-STARTD_NOCLAIM_SHUTDOWN=900.0
+STARTD_NOCLAIM_SHUTDOWN=$GLIDEIN_SHUTDOWN
 
 
 
