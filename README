@@ -32,6 +32,35 @@ $
 Take note of the "Node set name". This is the name of machines you allocated, and you'll use
 this when you submit nodes to HTCondor.    This will be different each time you use allocateNodes.py.
 
+SLURM RESERVATIONS
+
+For Slurm users, if you have a slurm reservation, you can use the "-r" option to use it.  If you have
+an reservation named "res_33", the allocation would look like this:
+
+$ allocateNodes.py -n 4 -s 24 -r res_33 -m 00:30:00 lsstvc
+4 nodes will be allocated on lsstvc with 24 slots per node and maximum time limit of 00:30:00
+Node set name:
+srp_888
+$
+
+Note that if you do not have an allocation, and you specify one, your jobs should run anyway if there are free
+nodes, since Slurm doesn't force it to run only if you have an allocation.
+
+If you try a reservation and get the error:
+
+$ allocateNodes.py -n 4 -s 24 -r res_43 -m 00:30:00 lsstvc
+error running sbatch /scratch/srp/condor_scratch/configs/alloc_srp_2017_1107_194557.slurm
+$
+
+It is likely that you tried to use an allocation you do not have permissions to use. You can use the "-v"
+option, and amoung the output you'll see a line that's something like:
+
+sbatch: error: Batch job submission failed: Access denied to requested reservation
+
+which verifies that is the case.
+
+ORCA
+
 
 To use this with Orca, specify the nodeset name using the "-N" option in runOrca.py.   The following
 command targets jobs to the "srp_450" node set, executing the command "/scratch/srp/myjob.sh" with input
