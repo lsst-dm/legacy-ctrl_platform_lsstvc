@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH -p debug
+#SBATCH -p $QUEUE
 #SBATCH -N $NODE_COUNT
 #SBATCH -t $WALL_CLOCK
 #SBATCH -n $NODE_COUNT
