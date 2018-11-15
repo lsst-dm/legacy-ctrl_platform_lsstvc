@@ -10,18 +10,22 @@ mechanism to start HTCondor clients which join the HTCondor submitter.
 To allocation nodes from the lsstvc cluster and add them to the 
 HTCondor submitter, execute the allocationNode.py command in ctrl_execute.
 
+
+
 BEFORE YOU START:
 
-create the directories:
-/scratch/username/condor_scratch
-/scratch/username/condor_work
+mkdir /scratch/username/condor_scratch
+mkdir /scratch/username/condor_work
 
-(Substitute "username" with your own login id).
 
-ALLOCATING NODES AND RUNNING A JOB:
+setup ctrl_execute
+setup ctrl_platform_lsstvc
 
-The following comand reserves four nodes, with 24 condor slots (cores) on
-each node, for 30 minutes:
+
+
+ALLOCATING NODES:
+
+The following command reserves four nodes, with 24 condor slots on each node, for 30 minutes:
 
 $ allocateNodes.py -n 4 -s 24 -m 00:30:00 lsstvc
 4 nodes will be allocated on lsstvc with 24 slots per node and maximum time limit of 00:30:00
@@ -29,13 +33,42 @@ Node set name:
 srp_450
 $
 
-Take note of the "Node set name". This is the name of machines you allocated, and you'll use
-this when you submit nodes to HTCondor.    This will be different each time you use allocateNodes.py.
 
-SLURM RESERVATIONS
+Take note of the "Node set name". This is the name of machines you allocated, and you'll use this when you submit nodes to HTCondor.    This will be different each time you use allocateNodes.py.
 
-For Slurm users, if you have a slurm reservation, you can use the "-r" option to use it.  If you have
-an reservation named "res_33", the allocation would look like this:
+The variable "JOB_NODE_SET" is specified in the HTCondor glidein configuration for all machines which are allocated.  In order to run jobs on these allocated nodes, you must have this value set in your HTCondor submit file.  Add the lines to your submit file: 
+
++JOB_NODE_SET="srp_450"
+
+Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0) && (Target.ALLOCATED_NODE_SET == "srp_450")
+
+
+(Note the "Requirements" line is all one line).
+
+If your jobs do not run on the nodes you allocated, it's likely you left these lines out of your HTCondor submit file.
+
+Please note that you can specify "-N" on this command line to name your own node set; it's likely you'll want to do this because otherwise you'll have to change the HTCondor submit file each time you run.
+
+
+NOTE ON HOW JOBS/MACHINES ARE LABELED
+
+There are a couple of reasons that things are set up with NODE_SET_NAME.
+
+1) This prevents users from accidentally using nodes that they didn't allocate.  The HTCondor job/slot matching mechanism labels the jobs and nodes with the "node set" name.  
+
+2) The nodes are also labeled with the user name of the person that allocated them.   Both conditions (user name and node set name) must match in order for the job to run.   Another user launching jobs from their account using someone else's allocated "node set" name will not work.
+
+3) It's possible to run allocateNodes.py twice, allocate another node set, and run two different sets of jobs concurrently.  Since you specify the "node set" name for each, the jobs only run on those nodes.
+
+4) It's possible to run allocateNodes.py and specify your own "node set" name.  If you do this, you can just keep the same HTCondor submit file and use it over and over again.  Note that you can allocate additional nodes to an existing node set in this way.  
+
+For example, say that you want to allocate 20 nodes.  When you go to type the command, you accidentally allocate two nodes with the node set name "srp_665", start some HTCondor jobs, and then realize you really meant to allocate 18 more.   You can re-run allocateNodes.py while the HTCondor jobs is in progress, and as long as you specify the node set name "srp_665", those nodes will be allocated and as soon as HTCondor starts on those nodes. Any jobs in the queue will start being scheduled to those nodes.
+
+
+
+USING SLURM RESERVATIONS
+
+If you have a slurm reservation, you can use the "-r" option to use it.  If you have a reservation named "res_33", the allocation would look like this:
 
 $ allocateNodes.py -n 4 -s 24 -r res_33 -m 00:30:00 lsstvc
 4 nodes will be allocated on lsstvc with 24 slots per node and maximum time limit of 00:30:00
@@ -43,8 +76,7 @@ Node set name:
 srp_888
 $
 
-Note that if you do not have an allocation, and you specify one, your jobs should run anyway if there are free
-nodes, since Slurm doesn't force it to run only if you have an allocation.
+Note that if you do not have an allocation, and you specify one, your jobs should run anyway if there are free nodes, since Slurm doesn't force it to only run on those allocated nodes.
 
 If you try a reservation and get the error:
 
