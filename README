@@ -25,18 +25,50 @@ setup ctrl_platform_lsstvc
 
 ALLOCATING NODES:
 
-The following command reserves four nodes, with 24 condor slots on each node, for 30 minutes:
+The following command reserves four nodes, with 24 condor slots on each node, 
+for 30 minutes, on the "normal" queue:
 
-$ allocateNodes.py -n 4 -s 24 -m 00:30:00 lsstvc
+$ allocateNodes.py -n 4 -s 24 -m 00:30:00 lsstvc -q normal
 4 nodes will be allocated on lsstvc with 24 slots per node and maximum time limit of 00:30:00
+Node set name:
+srp_333
+$
+
+
+Take note of the "Node set name". This is the name of machines you allocated, 
+and you'll use this when you submit nodes to HTCondor. This will be 
+different each time you use allocateNodes.py, unless you specify it on the 
+command line, with the -N option:
+
+$ allocateNodes.py -n 2 -s 4 -m 00:30:00 lsstvc -N srp_450 -q normal
+2 nodes will be allocated on lsstvc with 4 slots per node and maximum time limit of 00:30:00
 Node set name:
 srp_450
 $
 
+Running "sinfo" results in output containing the line:
 
-Take note of the "Node set name". This is the name of machines you allocated, and you'll use this when you submit nodes to HTCondor.    This will be different each time you use allocateNodes.py.
+normal*      up   infinite      2  alloc lsst-verify-worker[01-02]
 
-The variable "JOB_NODE_SET" is specified in the HTCondor glidein configuration for all machines which are allocated.  In order to run jobs on these allocated nodes, you must have this value set in your HTCondor submit file.  Add the lines to your submit file: 
+This varies depending on who is running and which machines are allocated.
+
+Running "condor_status" results in output similiar to:
+
+$ condor_status
+Name           OpSys      Arch   State     Activity LoadAv Mem    ActvtyTime
+
+slot1@worker01 LINUX      X86_64 Unclaimed Idle      0.000 32163  0+00:00:04
+slot2@worker01 LINUX      X86_64 Unclaimed Idle      0.000 32163  0+00:00:05
+slot3@worker01 LINUX      X86_64 Unclaimed Idle      0.000 32163  0+00:00:06
+slot4@worker01 LINUX      X86_64 Unclaimed Idle      0.000 32163  0+00:00:07
+slot1@worker02 LINUX      X86_64 Unclaimed Idle      0.000 32163  0+00:00:04
+slot2@worker02 LINUX      X86_64 Unclaimed Idle      0.000 32163  0+00:00:05
+slot3@worker02 LINUX      X86_64 Unclaimed Idle      0.000 32163  0+00:00:06
+slot4@worker02 LINUX      X86_64 Unclaimed Idle      0.000 32163  0+00:00:07
+
+The variable "JOB_NODE_SET" is specified in the HTCondor glidein configuration for all
+machines which are allocated.  In order to run jobs on these allocated nodes, you must
+have this value set in your HTCondor submit file.  Add the lines to your submit file: 
 
 +JOB_NODE_SET="srp_450"
 
@@ -45,30 +77,51 @@ Requirements = (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) &
 
 (Note the "Requirements" line is all one line).
 
-If your jobs do not run on the nodes you allocated, it's likely you left these lines out of your HTCondor submit file.
+If your jobs do not run on the nodes you allocated, it's likely you left these lines 
+out of your HTCondor submit file.
 
-Please note that you can specify "-N" on this command line to name your own node set; it's likely you'll want to do this because otherwise you'll have to change the HTCondor submit file each time you run.
+Please note that specifying "-N" on the allocateNodes.py invocation will let
+you  name your own node set; it's likely you'll want to do this because 
+otherwise you'll have to change the HTCondor submit file each time you run.
+It defaults to allocating a new name each time because of they way we wanted
+to run orchestration with the ctrl_orca package.
 
 
 NOTE ON HOW JOBS/MACHINES ARE LABELED
 
 There are a couple of reasons that things are set up with NODE_SET_NAME.
 
-1) This prevents users from accidentally using nodes that they didn't allocate.  The HTCondor job/slot matching mechanism labels the jobs and nodes with the "node set" name.  
+1) This prevents users from accidentally using nodes that they didn't
+allocate.  The HTCondor job/slot matching mechanism labels the jobs and
+nodes with the "node set" name.  
 
-2) The nodes are also labeled with the user name of the person that allocated them.   Both conditions (user name and node set name) must match in order for the job to run.   Another user launching jobs from their account using someone else's allocated "node set" name will not work.
+2) The nodes are also labeled with the user name of the person that allocated
+them.   Both conditions (user name and node set name) must match in order for
+the job to run.   Another user launching jobs from their account using
+someone else's allocated "node set" name will not work.
 
-3) It's possible to run allocateNodes.py twice, allocate another node set, and run two different sets of jobs concurrently.  Since you specify the "node set" name for each, the jobs only run on those nodes.
+3) It's possible to run allocateNodes.py twice, allocate another node set, and
+run two different sets of jobs concurrently.  Since you specify the "node set"
+name for each, the jobs only run on those nodes.
 
-4) It's possible to run allocateNodes.py and specify your own "node set" name.  If you do this, you can just keep the same HTCondor submit file and use it over and over again.  Note that you can allocate additional nodes to an existing node set in this way.  
+4) It's possible to run allocateNodes.py and specify your own "node set"
+name.  If you do this, you can just keep the same HTCondor submit file and
+use it over and over again.  Note that you can allocate additional nodes
+to an existing node set in this way.  
 
-For example, say that you want to allocate 20 nodes.  When you go to type the command, you accidentally allocate two nodes with the node set name "srp_665", start some HTCondor jobs, and then realize you really meant to allocate 18 more.   You can re-run allocateNodes.py while the HTCondor jobs is in progress, and as long as you specify the node set name "srp_665", those nodes will be allocated and as soon as HTCondor starts on those nodes. Any jobs in the queue will start being scheduled to those nodes.
-
+For example, say that you want to allocate 20 nodes.  When you go to type the
+command, you accidentally allocate two nodes with the node set name "srp_665",
+start some HTCondor jobs, and then realize you really meant to allocate
+18 more.   You can re-run allocateNodes.py while the HTCondor jobs is in
+progress, and as long as you specify the node set name "srp_665", those 
+nodes will be allocated and as soon as HTCondor starts on those nodes. Any 
+jobs in the queue will start being scheduled to those nodes.
 
 
 USING SLURM RESERVATIONS
 
-If you have a slurm reservation, you can use the "-r" option to use it.  If you have a reservation named "res_33", the allocation would look like this:
+If you have a slurm reservation, you can use the "-r" option to use it.  If 
+you have a reservation named "res_33", the allocation would look like this:
 
 $ allocateNodes.py -n 4 -s 24 -r res_33 -m 00:30:00 lsstvc
 4 nodes will be allocated on lsstvc with 24 slots per node and maximum time limit of 00:30:00
@@ -76,7 +129,9 @@ Node set name:
 srp_888
 $
 
-Note that if you do not have an allocation, and you specify one, your jobs should run anyway if there are free nodes, since Slurm doesn't force it to only run on those allocated nodes.
+Note that if you do not have an allocation, and you specify one, your jobs 
+should run anyway if there are free nodes, since Slurm doesn't force it to
+only run on those allocated nodes.
 
 If you try a reservation and get the error:
 
@@ -84,8 +139,9 @@ $ allocateNodes.py -n 4 -s 24 -r res_43 -m 00:30:00 lsstvc
 error running sbatch /scratch/srp/condor_scratch/configs/alloc_srp_2017_1107_194557.slurm
 $
 
-It is likely that you tried to use an allocation you do not have permissions to use. You can use the "-v"
-option, and amoung the output you'll see a line that's something like:
+It is likely that you tried to use an allocation you do not have permissions
+to use. You can use the "-v" option, and amoung the output you'll see a line
+that's something like:
 
 sbatch: error: Batch job submission failed: Access denied to requested reservation
 
@@ -94,9 +150,10 @@ which verifies that is the case.
 ORCA
 
 
-To use this with Orca, specify the nodeset name using the "-N" option in runOrca.py.   The following
-command targets jobs to the "srp_450" node set, executing the command "/scratch/srp/myjob.sh" with input
-file "~/medinput.txt" using the EUPS stack located at "/scratch/srp/lsstsw", on the target platform
+To use this with Orca, specify the nodeset name using the "-N" option in 
+runOrca.py.   The following command targets jobs to the "srp_450" node set, 
+executing the command "/scratch/srp/myjob.sh" with input file "~/medinput.txt"
+using the EUPS stack located at "/scratch/srp/lsstsw", on the target platform
 "verfication"
 
 $ runOrca.py -N srp_450 -c /scratch/srp/myjob.sh -i ~/medinput.txt -e /scratch/srp/lsstsw -p lsstvc
@@ -113,14 +170,16 @@ in this case, files were created in
 /scratch/srp/condor_scratch/srp_2016_1202_145231
 /scratch/srp/condor_work/srp_2016_1202_145231
 
-Files in condor_scratch/srp_2016_1202_145231 contain the working directory and files for a DAGman
-submission by HTCondor.
+Files in condor_scratch/srp_2016_1202_145231 contain the working directory and
+files for a DAGman submission by HTCondor.
 
-Files in condor_work/srp_2016_1202_14523/logs
+Files in:
 
-contain log files from stdout of the jobs that ran, identified by machine name, and the HTCondor slot 
-the job ran on.  It also contains a top level output directory, but it's  up to the job to decide
-how that's used.
+condor_work/srp_2016_1202_145231/logs
+
+contain log files from stdout of the jobs that ran, identified by machine 
+name, and the HTCondor slot the job ran on.  It also contains a top level
+output directory, but it's  up to the job to decide how that's used.
 
 RELINQUISHING NODES
 
