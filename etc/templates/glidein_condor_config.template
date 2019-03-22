@@ -24,7 +24,8 @@ HOSTALLOW_READ = 141.142.*
 ALLOW_WRITE = 141.142.*
 ALLOW_READ = 141.142.*
 
-NUM_CPUS=$SLOTS
+NUM_CPUS=$CPUS
+$DYNAMIC_SLOTS_BLOCK
 ####################################################################################
 
 STARTD_NOCLAIM_SHUTDOWN=$GLIDEIN_SHUTDOWN

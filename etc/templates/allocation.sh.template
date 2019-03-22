@@ -1,6 +1,6 @@
 #!/bin/bash -l
 nodeset=$NODE_SET
-numcpus=$SLOTS
+numcpus=$CPUS
 
 echo USER_NAME
 echo $USER_NAME
